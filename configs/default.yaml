@@ -1,0 +1,10 @@
+# Training settings. These are the 2022 values; seed is the only addition.
+image_height: 100
+image_width: 70
+folds: 5
+shuffle_seed: 1
+epochs: 25
+batch_size: 128
+learning_rate: 0.01
+threshold: 0.5
+seed: 0
