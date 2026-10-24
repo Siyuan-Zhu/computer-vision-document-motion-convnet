@@ -15,9 +15,9 @@ moving or has come to rest. If it captures too early, the scan is blurred. If
 it waits too long, digitizing a whole book becomes slow.
 
 That decision is a two-class image classification problem. I worked on it in
-2022 as an applied-ML residency project: a proof of concept for this one
-decision, trained on 2,392 labelled images and tested on a separate set of 597.
-It is a small computer-vision experiment, not a production system.
+2022 as an applied-ML residency project, building a computer-vision proof of
+concept for this decision. I trained it on 2,392 labelled images and tested it
+on a separate set of 597.
 
 ## Approach
 
