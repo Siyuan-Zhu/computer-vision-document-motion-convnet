@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.DS_Store
+
+# Data, run outputs and model weights never go in the repo
+data/
+runs/
+*.keras
+*.pt
+*.h5
+*.jpg
+*.jpeg
+*.png
+*.csv
