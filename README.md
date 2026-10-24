@@ -12,13 +12,12 @@ the book, it watches a low-resolution preview, captures each page at full
 resolution and turns the scans into digital text. To capture at the right
 moment, the app has to decide, image by image, whether the page is still
 moving or has come to rest. If it captures too early, the scan is blurred. If
-it waits too long, digitizing a whole book becomes slow. Getting this right
-helps most for people who cannot easily check every shot, including blind and
-low-vision readers, and for researchers digitizing books in bulk.
+it waits too long, digitizing a whole book becomes slow.
 
 That decision is a two-class image classification problem. I worked on it in
-2022 as an applied-ML residency project, with a labelled set of 2,392 training
-images and a separate test set of 597.
+2022 as an applied-ML residency project: a proof of concept for this one
+decision, trained on 2,392 labelled images and tested on a separate set of 597.
+It is a small computer-vision experiment, not a production system.
 
 ## Approach
 
