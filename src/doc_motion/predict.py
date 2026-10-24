@@ -17,7 +17,7 @@ class Prediction(NamedTuple):
     """One image's result."""
 
     path: Path
-    p_moving: float
+    p_flip: float
     label: str
 
 
@@ -28,7 +28,7 @@ def predict_folder(
 
     The backend is chosen from the model file's suffix (``.keras`` or
     ``.pt``). Images are read in name order and preprocessed exactly as in
-    training; a frame is ``moving`` when its probability is above
+    training; a frame is ``flip`` when its probability is above
     ``threshold``.
     """
     paths = list_images(folder)
@@ -46,9 +46,9 @@ def predict_folder(
 
 
 def write_csv(rows: Iterable[Prediction], path: str | Path) -> None:
-    """Write predictions as CSV with columns path, p_moving, label."""
+    """Write predictions as CSV with columns path, p_flip, label."""
     with Path(path).open("w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(Prediction._fields)
         for row in rows:
-            writer.writerow([str(row.path), f"{row.p_moving:.6f}", row.label])
+            writer.writerow([str(row.path), f"{row.p_flip:.6f}", row.label])

@@ -18,7 +18,7 @@ def build_keras_model(cfg: TrainConfig) -> keras.Model:
     Three convolution blocks (11x11, 5x5, then two 1x1 convolutions, each
     followed by batch normalisation and max pooling) feed two 1024-unit
     dense layers with 20% dropout and a single sigmoid output: the
-    probability that the page is moving. Compiled with Adam at
+    probability that a page is being flipped. Compiled with Adam at
     ``cfg.learning_rate``, binary cross-entropy and accuracy.
 
     ``cfg.seed`` seeds the weight initialisation and the dropout masks.

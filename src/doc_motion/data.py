@@ -21,8 +21,8 @@ RESIZE_TO = (70, 140)
 """The 2022 resize as OpenCV ``dsize`` (width, height), before the crop to
 the top ``IMAGE_SHAPE[0]`` rows and first ``IMAGE_SHAPE[1]`` columns."""
 
-CLASS_NAMES = ("still", "moving")
-"""Class names indexed by label: ``still`` is 0, ``moving`` is 1. They are
+CLASS_NAMES = ("notflip", "flip")
+"""Class names indexed by label: ``notflip`` is 0, ``flip`` is 1. They are
 also the folder names ``load_split`` reads."""
 
 IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png")
@@ -83,13 +83,13 @@ def list_images(folder: str | Path) -> list[Path]:
 def load_split(
     root: str | Path, split: str
 ) -> tuple[NDArray[np.float32], NDArray[np.int64]]:
-    """Load ``<root>/<split>/{moving,still}/*.jpg`` as preprocessed arrays.
+    """Load ``<root>/<split>/{flip,notflip}/*.jpg`` as preprocessed arrays.
 
     Returns
     -------
     X : ndarray of float32, shape (n, 100, 70, 3)
     y : ndarray of int64, shape (n,)
-        1 for ``moving`` and 0 for ``still``. Moving frames come first, as
+        1 for ``flip`` and 0 for ``notflip``. Flip frames come first, as
         in the 2022 notebook.
     """
     images: list[NDArray[np.float32]] = []

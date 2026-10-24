@@ -29,7 +29,7 @@ class TrainConfig:
     learning_rate : float
         Adam learning rate.
     threshold : float
-        A frame is labelled ``moving`` when its probability is above this.
+        A frame is labelled ``flip`` when its probability is above this.
     seed : int
         Seeds weight initialisation, dropout and batch order. The 2022 run
         was unseeded; this is added so packaged runs are repeatable.

@@ -42,9 +42,9 @@ def test_predict_writes_one_csv_row_per_image(
         rows = list(csv.DictReader(f))
     assert [r["path"].rsplit("/", 1)[-1] for r in rows] == ["0.jpg", "1.jpg", "2.jpg"]
     for row in rows:
-        p = float(row["p_moving"])
+        p = float(row["p_flip"])
         assert 0 <= p <= 1
-        assert row["label"] == ("moving" if p > 0.5 else "still")
+        assert row["label"] == ("flip" if p > 0.5 else "notflip")
 
 
 def test_predict_fails_cleanly_on_a_folder_with_no_images(
@@ -77,8 +77,8 @@ def test_train_writes_a_run_folder_from_an_image_folder(
 ):
     backend_named("torch")
     for split, n in [("train", 4), ("test", 2)]:
-        write_jpgs(tmp_path / "data" / split / "moving", n, 40, noise=20, seed=1)
-        write_jpgs(tmp_path / "data" / split / "still", n, 200, noise=20, seed=2)
+        write_jpgs(tmp_path / "data" / split / "flip", n, 40, noise=20, seed=1)
+        write_jpgs(tmp_path / "data" / split / "notflip", n, 200, noise=20, seed=2)
     config = tmp_path / "tiny.yaml"
     save_config(TrainConfig(folds=2, epochs=1, batch_size=4), config)
 

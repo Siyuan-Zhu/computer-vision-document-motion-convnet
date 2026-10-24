@@ -1,6 +1,6 @@
 # AGENTS.md
 
-A ConvNet for binary image classification: it labels a document image `moving` or `still`, packaged as the `doc_motion` library and CLI.
+A ConvNet for binary image classification: it labels a document image `flip` (a page is being turned) or `notflip`, packaged as the `doc_motion` library and CLI.
 Library code is in `src/doc_motion`, tests are in `tests/`, and the training settings are in `configs/default.yaml`.
 
 ## Gate before every commit
@@ -17,10 +17,10 @@ for b in torch tensorflow jax; do KERAS_BACKEND=$b pytest --cov --cov-fail-under
 - The preprocessing in `data.py`, the architecture in `keras_model.py` and the training procedure in `training.py` are a frozen copy of the 2022 method. The README's "Results (2022)" numbers describe exactly this method. Explain odd choices in the README's Design notes and leave them as they are.
 - `keras_model.py` builds only from `keras` layers and ops, so the same model runs on the TensorFlow, JAX and PyTorch backends.
 - `torch_model.py` mirrors the Keras model layer for layer. After `from_keras`, the parity test in `tests/test_torch_model.py` holds outputs to 1e-5 and the parameter counts equal. Run the gate on all three backends after touching either model file.
-- Both backends take float32 NHWC arrays of shape `data.IMAGE_SHAPE`. Labels come from `data.CLASS_NAMES`: `still` = 0, `moving` = 1.
+- Both backends take float32 NHWC arrays of shape `data.IMAGE_SHAPE`. Labels come from `data.CLASS_NAMES`: `notflip` = 0, `flip` = 1.
 - Every behaviour change gets a test through the public interface (`preprocess`, `load_split`, `training.run`, `predict_folder`, the CLI). Tests build their images from synthetic arrays in `tmp_path`.
 - The repo holds code only: images, weights, run folders and CSVs stay out of git, and `.gitignore` already excludes them.
-- Describe the data source as "a 2022 applied-ML residency project" and the task as moving versus still document frames. Keep organisation and client names out of code, docs and commit messages.
+- Describe the data source as "a 2022 applied-ML residency project" and the task as flip vs notflip document images. Keep organisation and client names out of code, docs and commit messages.
 
 ## Results
 

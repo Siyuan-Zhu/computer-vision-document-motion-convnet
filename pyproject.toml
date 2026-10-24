@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "doc-motion"
 version = "0.1.0"
-description = "Binary image classification with a ConvNet: is the document page in view moving or still?"
+description = "Binary image classification with a ConvNet: is a page being flipped (flip) or not (notflip)?"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]

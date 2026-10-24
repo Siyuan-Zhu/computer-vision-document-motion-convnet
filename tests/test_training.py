@@ -13,13 +13,13 @@ TINY = TrainConfig(folds=2, epochs=1, batch_size=4, seed=0)
 
 
 def _frames(n_per_class, seed):
-    # Moving frames are dark, still frames bright, with a little noise:
+    # Flip frames are dark, notflip frames bright, with a little noise:
     # an easy problem, so a few epochs are enough to separate them.
     rng = np.random.default_rng(seed)
     shape = (n_per_class, 100, 70, 3)
-    moving = 0.2 + 0.05 * rng.standard_normal(shape)
-    still = 0.8 + 0.05 * rng.standard_normal(shape)
-    X = np.concatenate([moving, still]).astype(np.float32)
+    flip = 0.2 + 0.05 * rng.standard_normal(shape)
+    notflip = 0.8 + 0.05 * rng.standard_normal(shape)
+    X = np.concatenate([flip, notflip]).astype(np.float32)
     y = np.array([1] * n_per_class + [0] * n_per_class)
     return X, y
 
@@ -42,7 +42,7 @@ def test_writes_a_dated_run_folder_with_config_metrics_and_model(
     assert metrics["n_test"] == 4
     assert len(metrics["fold_accuracies"]) == 2
     assert all(0 <= a <= 1 for a in metrics["fold_accuracies"])
-    assert {"moving", "still", "accuracy"} <= set(metrics["test_report"])
+    assert {"flip", "notflip", "accuracy"} <= set(metrics["test_report"])
     assert record.model_path.parent == record.run_dir
     reloaded = backend.load(record.model_path)
     assert backend.predict_proba(reloaded, _frames(1, 2)[0]).shape == (2,)

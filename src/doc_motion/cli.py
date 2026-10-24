@@ -26,7 +26,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="doc-motion",
-        description="Classify document frames as moving or still.",
+        description="Classify document frames as flip or notflip.",
     )
     commands = parser.add_subparsers(dest="command", required=True)
 

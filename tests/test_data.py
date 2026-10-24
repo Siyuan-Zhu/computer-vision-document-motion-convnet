@@ -76,30 +76,30 @@ def test_rejects_images_with_an_unsupported_channel_count():
         preprocess(np.zeros((100, 70, 2), dtype=np.uint8))
 
 
-def test_load_split_labels_moving_as_1_and_still_as_0(tmp_path, write_jpgs):
-    write_jpgs(tmp_path / "train" / "moving", 3, 10)
-    write_jpgs(tmp_path / "train" / "still", 2, 240)
+def test_load_split_labels_flip_as_1_and_notflip_as_0(tmp_path, write_jpgs):
+    write_jpgs(tmp_path / "train" / "flip", 3, 10)
+    write_jpgs(tmp_path / "train" / "notflip", 2, 240)
 
     X, y = load_split(tmp_path, "train")
 
     assert X.shape == (5, 100, 70, 3)
     assert X.dtype == np.float32
     np.testing.assert_array_equal(y, [1, 1, 1, 0, 0])
-    # The dark moving frames invert to bright, the bright still frames to dark.
+    # The dark flip frames invert to bright, the bright notflip frames to dark.
     assert X[:3].mean() > 0.9
     assert X[3:].mean() < 0.1
 
 
 def test_load_split_fails_clearly_when_the_folder_is_empty(tmp_path):
-    (tmp_path / "test" / "moving").mkdir(parents=True)
+    (tmp_path / "test" / "flip").mkdir(parents=True)
 
     with pytest.raises(FileNotFoundError, match="test"):
         load_split(tmp_path, "test")
 
 
 def test_load_split_names_a_file_it_cannot_read(tmp_path, write_jpgs):
-    write_jpgs(tmp_path / "train" / "still", 1, 100)
-    (tmp_path / "train" / "still" / "broken.jpg").write_bytes(b"not a jpeg")
+    write_jpgs(tmp_path / "train" / "notflip", 1, 100)
+    (tmp_path / "train" / "notflip" / "broken.jpg").write_bytes(b"not a jpeg")
 
     with pytest.raises(ValueError, match=r"broken\.jpg"):
         load_split(tmp_path, "train")

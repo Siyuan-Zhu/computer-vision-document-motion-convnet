@@ -28,7 +28,7 @@ from .data import IMAGE_SHAPE
 
 
 class DocMotionNet(nn.Module):
-    """The 2022 ConvNet. Takes float32 NHWC frames, returns P(moving)."""
+    """The 2022 ConvNet. Takes float32 NHWC frames, returns P(flip)."""
 
     def __init__(self, input_shape: tuple[int, int, int] = IMAGE_SHAPE) -> None:
         super().__init__()
@@ -155,7 +155,7 @@ def train(
 def predict_proba(
     net: DocMotionNet, X: NDArray[np.float32], batch_size: int = 128
 ) -> NDArray[np.float32]:
-    """Return P(moving) for each frame, with dropout off and BatchNorm frozen."""
+    """Return P(flip) for each frame, with dropout off and BatchNorm frozen."""
     net.eval()
     inputs = torch.from_numpy(np.ascontiguousarray(X, dtype=np.float32))
     with torch.no_grad():
