@@ -8,14 +8,6 @@ import pytest
 
 from doc_motion.config import TrainConfig, load_config
 
-
-def _backend(name):
-    pytest.importorskip("keras" if name == "keras" else "torch")
-    from doc_motion.backends import get_backend
-
-    return get_backend(name)
-
-
 BACKENDS = ["keras", "torch"]
 TINY = TrainConfig(folds=2, epochs=1, batch_size=4, seed=0)
 
@@ -33,10 +25,12 @@ def _frames(n_per_class, seed):
 
 
 @pytest.mark.parametrize("name", BACKENDS)
-def test_writes_a_dated_run_folder_with_config_metrics_and_model(name, tmp_path):
+def test_writes_a_dated_run_folder_with_config_metrics_and_model(
+    name, tmp_path, backend_named
+):
     from doc_motion.training import run
 
-    backend = _backend(name)
+    backend = backend_named(name)
     record = run(TINY, _frames(4, 0), _frames(2, 1), backend, tmp_path)
 
     assert record.run_dir.parent == tmp_path
@@ -55,14 +49,14 @@ def test_writes_a_dated_run_folder_with_config_metrics_and_model(name, tmp_path)
 
 
 @pytest.mark.parametrize("name", BACKENDS)
-def test_training_loss_falls_on_an_easy_split(name, tmp_path):
+def test_training_loss_falls_on_an_easy_split(name, tmp_path, backend_named):
     # Only the training loss: after a handful of steps the BatchNorm moving
     # averages (momentum 0.99) are still near their start, so eval-mode
     # predictions on tiny data say little.
     from doc_motion.training import run
 
     cfg = TrainConfig(folds=2, epochs=4, batch_size=8, learning_rate=1e-3, seed=0)
-    record = run(cfg, _frames(8, 0), _frames(4, 1), _backend(name), tmp_path)
+    record = run(cfg, _frames(8, 0), _frames(4, 1), backend_named(name), tmp_path)
     metrics = json.loads((record.run_dir / "metrics.json").read_text())
 
     losses = metrics["final_fit_loss"]
@@ -71,10 +65,10 @@ def test_training_loss_falls_on_an_easy_split(name, tmp_path):
 
 
 @pytest.mark.parametrize("name", BACKENDS)
-def test_same_seed_gives_the_same_run(name, tmp_path):
+def test_same_seed_gives_the_same_run(name, tmp_path, backend_named):
     from doc_motion.training import run
 
-    backend = _backend(name)
+    backend = backend_named(name)
     first = run(TINY, _frames(4, 0), _frames(2, 1), backend, tmp_path)
     second = run(TINY, _frames(4, 0), _frames(2, 1), backend, tmp_path)
 
@@ -87,14 +81,14 @@ def test_same_seed_gives_the_same_run(name, tmp_path):
     )
 
 
-def test_rejects_frames_of_the_wrong_size(tmp_path):
+def test_rejects_frames_of_the_wrong_size(tmp_path, backend_named):
     from doc_motion.training import run
 
     X = np.zeros((4, 50, 35, 3), np.float32)
     y = np.array([0, 1, 0, 1])
 
     with pytest.raises(ValueError, match="100, 70, 3"):
-        run(TINY, (X, y), (X, y), _backend("torch"), tmp_path)
+        run(TINY, (X, y), (X, y), backend_named("torch"), tmp_path)
 
 
 def test_unknown_backend_name_is_rejected():

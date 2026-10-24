@@ -3,36 +3,20 @@
 import csv
 import json
 
-import cv2
-import numpy as np
 import pytest
 
 from doc_motion.cli import main
 from doc_motion.config import TrainConfig, save_config
 
 
-def _backend(name):
-    pytest.importorskip("keras" if name == "keras" else "torch")
-    from doc_motion.backends import get_backend
-
-    return get_backend(name)
-
-
-def _write_jpgs(folder, n, value, seed=0):
-    folder.mkdir(parents=True)
-    rng = np.random.default_rng(seed)
-    for i in range(n):
-        noise = rng.integers(-20, 20, size=(80, 60, 3))
-        image = np.clip(value + noise, 0, 255).astype(np.uint8)
-        cv2.imwrite(str(folder / f"{i}.jpg"), image)
-
-
 @pytest.mark.parametrize("name", ["keras", "torch"])
-def test_predict_writes_one_csv_row_per_image(name, tmp_path):
-    backend = _backend(name)
+def test_predict_writes_one_csv_row_per_image(
+    name, tmp_path, backend_named, write_jpgs
+):
+    backend = backend_named(name)
     model_path = tmp_path / f"model{backend.model_suffix}"
     backend.save(backend.build(TrainConfig()), model_path)
-    _write_jpgs(tmp_path / "frames", 3, 60)
+    write_jpgs(tmp_path / "frames", 3, 60, noise=20)
     (tmp_path / "frames" / "notes.txt").write_text("not an image")
     out = tmp_path / "predictions.csv"
 
@@ -58,8 +42,10 @@ def test_predict_writes_one_csv_row_per_image(name, tmp_path):
         assert row["label"] == ("moving" if p > 0.5 else "still")
 
 
-def test_predict_fails_cleanly_on_a_folder_with_no_images(tmp_path, capsys):
-    backend = _backend("torch")
+def test_predict_fails_cleanly_on_a_folder_with_no_images(
+    tmp_path, capsys, backend_named
+):
+    backend = backend_named("torch")
     model_path = tmp_path / "model.pt"
     backend.save(backend.build(TrainConfig()), model_path)
     (tmp_path / "empty").mkdir()
@@ -81,11 +67,13 @@ def test_predict_fails_cleanly_on_a_folder_with_no_images(tmp_path, capsys):
     assert not (tmp_path / "out.csv").exists()
 
 
-def test_train_writes_a_run_folder_from_an_image_folder(tmp_path, capsys):
-    _backend("torch")
+def test_train_writes_a_run_folder_from_an_image_folder(
+    tmp_path, capsys, backend_named, write_jpgs
+):
+    backend_named("torch")
     for split, n in [("train", 4), ("test", 2)]:
-        _write_jpgs(tmp_path / "data" / split / "moving", n, 40, seed=1)
-        _write_jpgs(tmp_path / "data" / split / "still", n, 200, seed=2)
+        write_jpgs(tmp_path / "data" / split / "moving", n, 40, noise=20, seed=1)
+        write_jpgs(tmp_path / "data" / split / "still", n, 200, noise=20, seed=2)
     config = tmp_path / "tiny.yaml"
     save_config(TrainConfig(folds=2, epochs=1, batch_size=4), config)
 

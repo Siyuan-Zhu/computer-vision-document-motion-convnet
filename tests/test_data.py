@@ -1,6 +1,5 @@
 """Preprocessing and folder loading, on synthetic images only."""
 
-import cv2
 import numpy as np
 import pytest
 
@@ -77,15 +76,9 @@ def test_rejects_images_with_an_unsupported_channel_count():
         preprocess(np.zeros((100, 70, 2), dtype=np.uint8))
 
 
-def _write_jpgs(folder, n, value):
-    folder.mkdir(parents=True)
-    for i in range(n):
-        cv2.imwrite(str(folder / f"{i}.jpg"), np.full((60, 40, 3), value, np.uint8))
-
-
-def test_load_split_labels_moving_as_1_and_still_as_0(tmp_path):
-    _write_jpgs(tmp_path / "train" / "moving", 3, 10)
-    _write_jpgs(tmp_path / "train" / "still", 2, 240)
+def test_load_split_labels_moving_as_1_and_still_as_0(tmp_path, write_jpgs):
+    write_jpgs(tmp_path / "train" / "moving", 3, 10)
+    write_jpgs(tmp_path / "train" / "still", 2, 240)
 
     X, y = load_split(tmp_path, "train")
 
