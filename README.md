@@ -6,13 +6,11 @@ given a low-resolution image of a document, predict whether the page is
 
 ## The problem
 
-Digitizing a book usually means photographing it one page at a time. A
-book-digitization app can take that work off the user: while they go through
-the book, it watches a low-resolution preview, captures each page at full
-resolution and turns the scans into digital text. To capture at the right
-moment, the app has to decide, image by image, whether the page is still
-moving or has come to rest. If it captures too early, the scan is blurred. If
-it waits too long, digitizing a whole book becomes slow.
+A book-digitization app scans a book from a low-resolution live preview,
+capturing each page at full resolution and converting it to digital text. The
+capture has to be timed: image by image, the app decides whether the page in
+view is still moving or has come to rest. Capturing too early gives a blurred
+scan, and waiting too long slows down digitizing a whole book.
 
 That decision is a two-class image classification problem. I worked on it in
 2022 as an applied-ML residency project, building a computer-vision proof of
