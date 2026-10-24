@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "doc-motion"
 version = "0.1.0"
-description = "A ConvNet that tells a phone document scanner whether the page in view is moving or still"
+description = "Binary image classification with a ConvNet: is the document page in view moving or still?"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]

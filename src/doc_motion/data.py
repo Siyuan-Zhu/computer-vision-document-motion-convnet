@@ -1,4 +1,4 @@
-"""Turn camera frames into model input, and load a labelled image folder.
+"""Turn document images into model input, and load a labelled image folder.
 
 The preprocessing is the 2022 OpenCV recipe, step for step. Its quirks are
 kept on purpose: the resize distorts the aspect ratio, the crop drops the

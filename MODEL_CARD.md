@@ -2,12 +2,12 @@
 
 ## Model
 
-- **Task:** binary image classification. It labels a phone-camera frame of a
+- **Task:** binary image classification. It labels a low-resolution image of a
   document `moving` (1) or `still` (0).
 - **Architecture:** a ConvNet with four convolution layers (11 × 11, 5 × 5,
   1 × 1, 1 × 1), batch normalisation, max pooling, two dense layers of 1,024
   units with 20% dropout, and a sigmoid output. It has 11.9 million parameters.
-- **Input:** a 100 × 70 × 3 frame, preprocessed as described in
+- **Input:** a 100 × 70 × 3 image, preprocessed as described in
   [README: Preprocessing](README.md#preprocessing).
 - **Output:** the probability that the page is moving. Above 0.5 counts as
   moving.
@@ -18,16 +18,16 @@
 
 ## Intended use
 
-- **Intended:** the trigger in a phone document scanner. It waits until the
-  page is still, then takes the full-resolution shot.
+- **Intended:** the capture trigger in a bulk document-scanning app. The app
+  waits until the page is still, then takes the full-resolution shot.
 - **Not intended:** any decision about people, or document content of any
-  kind. It does not read text and has not been tested beyond the camera setup
+  kind. It does not read text and has not been tested beyond the capture setup
   it was trained on.
 
 ## Data
 
-- **Training:** 2,392 labelled frames from a residency project's image set.
-- **Test:** a separate set of 597 frames: 290 moving and 307 still.
+- **Training:** 2,392 labelled images from a residency project's image set.
+- **Test:** a separate set of 597 images: 290 moving and 307 still.
 - **Not shipped:** the images belong to the programme and are not in this
   repo. No trained weights are shipped either.
 
@@ -41,12 +41,12 @@
 
 ## Limitations and risks
 
-- The cross-validation score may be optimistic, because neighbouring frames
-  from the same footage can end up in both training and validation folds. The
+- The cross-validation score may be optimistic, because images taken moments
+  apart can end up in both training and validation folds. The
   separate test set is the more reliable figure.
-- All frames come from one data source and camera setup. Other phones,
+- All images come from one data source and capture setup. Other devices,
   lighting conditions and paper types may lower accuracy.
-- Each frame is judged by itself. A misfire costs a blurred capture or a short
+- Each image is judged by itself. A misfire costs a blurred capture or a short
   delay.
 
 ## Reproducing

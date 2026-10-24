@@ -1,6 +1,6 @@
 # AGENTS.md
 
-A ConvNet that labels a phone-camera frame of a document as `moving` or `still`, packaged as the `doc_motion` library and CLI.
+A ConvNet for binary image classification: it labels a document image `moving` or `still`, packaged as the `doc_motion` library and CLI.
 Library code is in `src/doc_motion`, tests are in `tests/`, and the training settings are in `configs/default.yaml`.
 
 ## Gate before every commit

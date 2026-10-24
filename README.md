@@ -1,17 +1,43 @@
 # computer-vision-document-motion-convnet
 
-A convolutional neural network that looks at a phone-camera frame of a document
-and says whether the page is **moving** or **still**, so a scanner app knows
-when to take the full-resolution shot. I built it in 2022. In 2022 it scored
-98% accuracy on 597 held-out test images. This repo packages that method as a
-tested Python library with a command-line tool, and it adds a hand-written
-PyTorch version of the same network.
+Binary image classification with a convolutional neural network (ConvNet):
+given a low-resolution image of a document, predict whether the page is
+`moving` or `still`.
 
-![Pipeline: camera frame, preprocessing, ConvNet, decision, capture](docs/figures/pipeline.svg)
+## The problem
 
-**Figure 1.** *From camera frame to capture decision.* The library covers
-preprocessing, the ConvNet and the decision. The capture itself belongs to the
-scanner app.
+An app that digitizes documents in bulk captures each page automatically, so
+the user never has to press a shutter button. To do that, it watches a
+low-resolution preview and has to decide, image by image, whether the page has
+come to rest. If it captures too early, the scan is blurred. If it waits too
+long, scanning a book becomes slow. Automatic capture helps most for people who
+cannot easily check every shot, including blind and low-vision users, and for
+researchers and anyone else scanning in bulk.
+
+That decision is a two-class image classification problem. I worked on it in
+2022 as an applied-ML residency project, with a labelled set of 2,392 training
+images and a separate test set of 597.
+
+## Approach
+
+![Pipeline: document image, preprocessing, ConvNet, moving or still](docs/figures/pipeline.svg)
+
+**Figure 1.** *From input image to label.* Each image is resized, cropped,
+contrast-adjusted and inverted. A ConvNet then outputs the probability that
+the page is moving, and probabilities above 0.5 count as `moving`.
+
+- OpenCV preprocessing turns each image into a 100 × 70 × 3 array and makes
+  page edges and text stand out.
+- The ConvNet has four convolution layers and two dense layers, trained with
+  binary cross-entropy and Adam.
+- I evaluated it with 5-fold cross-validation on the training set, then scored
+  a final model on the held-out test set.
+
+This repository packages that 2022 method as a Python library. It keeps the
+same preprocessing, network and training procedure. Through Keras 3, it runs
+on TensorFlow, JAX or PyTorch, and it adds a hand-written PyTorch version of
+the network, a command-line tool for training and batch prediction, and a
+model card.
 
 ## Results (2022)
 
@@ -28,7 +54,7 @@ scanner app.
   [Limitations](#limitations).
 - I also tried a second approach on video sequences, using features from a
   pretrained VGG16 network. It reached 54% accuracy and recalled only 11% of
-  still frames, so I dropped it.
+  still images, so I dropped it.
 
 ![2022 learning curves: loss and accuracy per epoch for the five folds](docs/figures/learning-curves-2022.png)
 
@@ -82,8 +108,8 @@ KERAS_BACKEND=torch doc-motion train --data data/ --out runs/              # Ker
 doc-motion train --data data/ --backend torch --out runs/                  # native PyTorch model
 doc-motion train --data data/ --config configs/default.yaml --out runs/   # custom settings
 
-# Label a folder of frames and write a CSV (path, p_moving, label)
-doc-motion predict --model runs/<run>/model.keras --images frames/ --out predictions.csv
+# Label a folder of images and write a CSV (path, p_moving, label)
+doc-motion predict --model runs/<run>/model.keras --images images/ --out predictions.csv
 ```
 
 Each training run writes `runs/<date>_<time>_<backend>/` with three files:
@@ -96,8 +122,8 @@ Batch prediction in Docker:
 
 ```bash
 docker build -t doc-motion .
-docker run --rm -v "$PWD/runs/<run>:/models:ro" -v "$PWD/frames:/frames:ro" -v "$PWD/out:/out" \
-  doc-motion --model /models/model.pt --images /frames --out /out/predictions.csv
+docker run --rm -v "$PWD/runs/<run>:/models:ro" -v "$PWD/images:/images:ro" -v "$PWD/out:/out" \
+  doc-motion --model /models/model.pt --images /images --out /out/predictions.csv
 ```
 
 From Python:
@@ -118,7 +144,7 @@ record = run(
     "runs",
 )
 print(record.cv_accuracy_mean, record.test_report["accuracy"])
-rows = predict_folder(record.model_path, "frames")
+rows = predict_folder(record.model_path, "images")
 ```
 
 ## Design notes
@@ -129,14 +155,14 @@ look odd today. I've explained them here and kept them.
 
 ### Preprocessing
 
-[`data.preprocess`](src/doc_motion/data.py) reads each frame, then takes it through five steps:
+[`data.preprocess`](src/doc_motion/data.py) reads each image, then takes it through five steps:
 1. Resize to 70 × 140 pixels.
 2. Keep the top 100 rows, which gives 100 × 70 × 3.
 3. Lift the contrast (×1.5, +0.5).
 4. Invert, so the dark text and page edges become bright.
 5. Scale to the range 0 to 1.
 
-Frames stay in colour, in OpenCV's BGR order. Grayscale input is converted to
+Images stay in colour, in OpenCV's BGR order. Grayscale input is converted to
 three channels first.
 
 ### Network
@@ -183,14 +209,14 @@ with the biased one.
 
 ## Limitations
 
-- The cross-validation score is probably optimistic. The frames come from
-  camera footage, so neighbouring frames are near duplicates, and shuffled
+- The cross-validation score is probably optimistic. The images were
+  taken in sequence, so images taken moments apart are near duplicates, and shuffled
   folds can put near-twins on both sides of a split. The separate test set
   does not have this problem, which is why I lead with 0.98.
-- All images come from one data set and one camera setup. Other phones,
+- All images come from one data set and one capture setup. Other devices,
   lighting or page types are untested.
 - The folds vary: one scored 90.0%, against 96% to 100% for the others.
-- The model judges each frame by itself and ignores the frames around it. My
+- The model judges each image by itself and ignores the images around it. My
   attempt to use sequences did worse (54%).
 
 ## History

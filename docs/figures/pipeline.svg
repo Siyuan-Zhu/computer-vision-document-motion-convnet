@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="190" viewBox="0 0 820 190" font-family="Helvetica, Arial, sans-serif">
+  <title>From input image to label</title>
+  <rect width="820" height="190" rx="10" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/>
+    </marker>
+  </defs>
+  <g fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.2">
+    <rect x="20" y="45" width="150" height="100" rx="8"/>
+    <rect x="205" y="45" width="200" height="100" rx="8"/>
+    <rect x="440" y="45" width="170" height="100" rx="8" fill="#e8eefc" stroke="#3b5bdb"/>
+    <rect x="645" y="45" width="155" height="100" rx="8"/>
+  </g>
+  <g stroke="#6b7280" stroke-width="1.6" marker-end="url(#arrow)">
+    <line x1="170" y1="95" x2="203" y2="95"/>
+    <line x1="405" y1="95" x2="438" y2="95"/>
+    <line x1="610" y1="95" x2="643" y2="95"/>
+  </g>
+  <g fill="#111827" font-size="15" font-weight="bold" text-anchor="middle">
+    <text x="95" y="78">Document image</text>
+    <text x="305" y="78">Preprocess</text>
+    <text x="525" y="78">ConvNet</text>
+    <text x="722" y="78">Label</text>
+  </g>
+  <g fill="#374151" font-size="12" text-anchor="middle">
+    <text x="95" y="102">low resolution,</text>
+    <text x="95" y="118">colour</text>
+    <text x="305" y="102">resize, crop to 100 × 70,</text>
+    <text x="305" y="118">lift contrast, invert,</text>
+    <text x="305" y="134">scale to 0 to 1</text>
+    <text x="525" y="102">4 conv layers,</text>
+    <text x="525" y="118">2 dense layers,</text>
+    <text x="525" y="134">P(moving)</text>
+    <text x="722" y="102">P &gt; 0.5: moving</text>
+    <text x="722" y="118">otherwise: still</text>
+  </g>
+  <text x="410" y="174" fill="#6b7280" font-size="12" text-anchor="middle">Binary image classification: one probability per image, one threshold.</text>
+</svg>
