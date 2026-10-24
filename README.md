@@ -10,7 +10,7 @@ A book-digitization app scans a book from a low-resolution live preview and
 saves each page at full resolution as a digital scan. For each preview image,
 the app decides whether the page in view is moving or still, and it captures
 the page once it is still. Capturing too early gives a blurred scan, and
-waiting too long slows down digitizing a whole book.
+waiting too long slows down digitizing an entire book.
 
 That decision is a two-class image classification problem. This was an
 applied-ML residency project I completed in 2022: a computer-vision proof of
