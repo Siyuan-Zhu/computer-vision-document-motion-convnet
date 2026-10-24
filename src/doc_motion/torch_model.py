@@ -24,12 +24,13 @@ from numpy.typing import NDArray
 from torch import nn
 
 from .config import TrainConfig
+from .data import IMAGE_SHAPE
 
 
 class DocMotionNet(nn.Module):
     """The 2022 ConvNet. Takes float32 NHWC frames, returns P(moving)."""
 
-    def __init__(self, input_shape: tuple[int, int, int] = (100, 70, 3)) -> None:
+    def __init__(self, input_shape: tuple[int, int, int] = IMAGE_SHAPE) -> None:
         super().__init__()
         height, width, channels = input_shape
         self.input_shape = input_shape

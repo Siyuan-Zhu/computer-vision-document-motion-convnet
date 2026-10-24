@@ -10,7 +10,7 @@ from typing import NamedTuple
 import numpy as np
 
 from .backends import backend_for_model
-from .data import list_images, read_image
+from .data import CLASS_NAMES, IMAGE_SUFFIXES, list_images, read_image
 
 
 class Prediction(NamedTuple):
@@ -33,13 +33,14 @@ def predict_folder(
     """
     paths = list_images(folder)
     if not paths:
-        raise FileNotFoundError(f"no images (.jpg, .jpeg, .png) found in {folder}")
+        suffixes = ", ".join(IMAGE_SUFFIXES)
+        raise FileNotFoundError(f"no images ({suffixes}) found in {folder}")
     backend = backend_for_model(model_path)
     model = backend.load(Path(model_path))
     X = np.stack([read_image(p) for p in paths])
     probabilities = backend.predict_proba(model, X)
     return [
-        Prediction(path, float(p), "moving" if p > threshold else "still")
+        Prediction(path, float(p), CLASS_NAMES[int(p > threshold)])
         for path, p in zip(paths, probabilities, strict=True)
     ]
 

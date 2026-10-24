@@ -15,10 +15,15 @@ import numpy as np
 from numpy.typing import NDArray
 
 IMAGE_SHAPE = (100, 70, 3)
-"""Height, width and channels of one preprocessed frame."""
+"""Height, width and channels of one preprocessed frame: the network input."""
 
-CLASSES = {"moving": 1, "still": 0}
-"""Folder name and label of each class."""
+RESIZE_TO = (70, 140)
+"""The 2022 resize as OpenCV ``dsize`` (width, height), before the crop to
+the top ``IMAGE_SHAPE[0]`` rows and first ``IMAGE_SHAPE[1]`` columns."""
+
+CLASS_NAMES = ("still", "moving")
+"""Class names indexed by label: ``still`` is 0, ``moving`` is 1. They are
+also the folder names ``load_split`` reads."""
 
 IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png")
 
@@ -50,8 +55,9 @@ def preprocess(image: NDArray[Any]) -> NDArray[np.float32]:
     if image.ndim != 3 or image.shape[2] != 3:
         raise ValueError(f"expected 1 or 3 channels, got image shape {image.shape}")
 
-    resized = cv2.resize(image, dsize=(70, 140), interpolation=cv2.INTER_CUBIC)
-    cropped = resized[0:100, 0:70]
+    resized = cv2.resize(image, dsize=RESIZE_TO, interpolation=cv2.INTER_CUBIC)
+    height, width, _ = IMAGE_SHAPE
+    cropped = resized[0:height, 0:width]
     brightened = cv2.addWeighted(cropped, 1.5, np.zeros_like(cropped), 0, 0.5)
     inverted = cv2.bitwise_not(brightened)
     return (inverted / 255).astype(np.float32)
@@ -88,13 +94,13 @@ def load_split(
     """
     images: list[NDArray[np.float32]] = []
     labels: list[int] = []
-    for name, label in CLASSES.items():
-        folder = Path(root) / split / name
+    for label in (1, 0):
+        folder = Path(root) / split / CLASS_NAMES[label]
         paths = list_images(folder) if folder.is_dir() else []
         images.extend(read_image(p) for p in paths)
         labels.extend([label] * len(paths))
     if not images:
         raise FileNotFoundError(
-            f"no images found under {Path(root) / split}/{{moving,still}}"
+            f"no images found under {Path(root) / split}/{{{','.join(CLASS_NAMES)}}}"
         )
     return np.stack(images), np.asarray(labels, dtype=np.int64)

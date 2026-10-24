@@ -7,6 +7,8 @@ from pathlib import Path
 
 import yaml
 
+from .data import IMAGE_SHAPE
+
 
 @dataclass(frozen=True)
 class TrainConfig:
@@ -15,8 +17,9 @@ class TrainConfig:
     Attributes
     ----------
     image_height, image_width : int
-        Input size of the network. Preprocessing always produces 100 x 70,
-        so change these only together with your own preprocessing.
+        Input size of the network. Preprocessing always produces
+        ``data.IMAGE_SHAPE`` (100 x 70), so change these only together with
+        your own preprocessing.
     folds : int
         Number of cross-validation folds on the training set.
     shuffle_seed : int
@@ -32,8 +35,8 @@ class TrainConfig:
         was unseeded; this is added so packaged runs are repeatable.
     """
 
-    image_height: int = 100
-    image_width: int = 70
+    image_height: int = IMAGE_SHAPE[0]
+    image_width: int = IMAGE_SHAPE[1]
     folds: int = 5
     shuffle_seed: int = 1
     epochs: int = 25

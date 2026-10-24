@@ -21,6 +21,7 @@ from sklearn.model_selection import KFold
 
 from .backends import Backend
 from .config import TrainConfig, save_config
+from .data import CLASS_NAMES
 
 Split = tuple[NDArray[np.float32], NDArray[Any]]
 
@@ -68,8 +69,8 @@ def run(
     report: dict[str, Any] = classification_report(
         y_test,
         predicted,
-        labels=[0, 1],
-        target_names=["still", "moving"],
+        labels=list(range(len(CLASS_NAMES))),
+        target_names=list(CLASS_NAMES),
         output_dict=True,
         zero_division=0,
     )
