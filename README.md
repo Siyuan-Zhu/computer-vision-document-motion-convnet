@@ -7,15 +7,14 @@ given a low-resolution image of a document, predict whether the page is
 ## The problem
 
 A book-digitization app scans a book from a low-resolution live preview,
-capturing each page at full resolution and converting it to digital text. The
+capturing each page at full resolution as a digital scan. The
 capture has to be timed: image by image, the app decides whether the page in
 view is still moving or has come to rest. Capturing too early gives a blurred
 scan, and waiting too long slows down digitizing a whole book.
 
-That decision is a two-class image classification problem. I worked on it in
-2022 as an applied-ML residency project, building a computer-vision proof of
-concept. I trained it on 2,392 labelled images and tested it
-on a separate set of 597.
+That decision is a two-class image classification problem. This was an
+applied-ML residency project I completed in 2022: a computer-vision proof of
+concept trained on 2,392 labelled images and tested on a separate set of 597.
 
 ## Approach
 
@@ -29,8 +28,8 @@ the page is moving, and probabilities above 0.5 count as `moving`.
   page edges and text stand out.
 - The ConvNet has four convolution layers and two dense layers, trained with
   binary cross-entropy and Adam.
-- I evaluated it with 5-fold cross-validation on the training set, then scored
-  a final model on the held-out test set.
+- Evaluation uses 5-fold cross-validation on the training set, then scores a
+  final model on the held-out test set.
 
 This repository packages that 2022 method as a Python library. It keeps the
 same preprocessing, network and training procedure. Through Keras 3, it runs
@@ -49,11 +48,10 @@ model card.
 
 - The five fold accuracies were 96.9%, 98.1%, 99.8%, 96.4% and 90.0%.
 - The test set was a separate folder that the model never saw while training.
-  It is the number I trust most, for the reason given under
-  [Limitations](#limitations).
-- I also tried a second approach on video sequences, using features from a
-  pretrained VGG16 network. It reached 54% accuracy and recalled only 11% of
-  still images, so I dropped it.
+  It is the more reliable figure; see [Limitations](#limitations).
+- A second approach on video sequences, using features from a pretrained
+  VGG16 network, reached 54% accuracy and recalled only 11% of still images.
+  It was dropped.
 
 ![2022 learning curves: loss and accuracy per epoch for the five folds](docs/figures/learning-curves-2022.png)
 
@@ -65,9 +63,8 @@ loss at the first epoch.
 
 ## What this project shows
 
-- I wrote the computer-vision pipeline end to end: OpenCV preprocessing, a
-  ConvNet sized for this input, k-fold cross-validation and a held-out test
-  report.
+- A complete computer-vision pipeline: OpenCV preprocessing, a ConvNet sized
+  for this input, k-fold cross-validation and a held-out test report.
 - The Keras 3 model runs unchanged on TensorFlow, JAX and PyTorch, and CI tests
   it on all three.
 - The hand-written PyTorch version is checked against the original. Given the
@@ -150,7 +147,7 @@ rows = predict_folder(record.model_path, "images")
 
 The preprocessing, the network and the training procedure are the 2022 ones,
 copied exactly, so the results above describe this code's method. Some choices
-look odd today. I've explained them here and kept them.
+look unusual today; they are explained below and left unchanged.
 
 ### Preprocessing
 
@@ -174,8 +171,8 @@ The network has 11.9 million parameters.
 - Two 1 × 1 convolutions mix the 256 channels cheaply before the last pooling
   step.
 - 88% of the weights sit in the first dense layer (10,240 → 1,024). A global
-  average pool there would cut the model to about 1.7 million parameters. I
-  left that change out so the 2022 results still describe this code.
+  average pool there would cut the model to about 1.7 million parameters. That
+  change is left out so the 2022 results still describe this code.
 - Two batch-normalisation layers sit back to back, with only a pooling step
   between them. The second adds little, but it is part of the original.
 
@@ -184,7 +181,7 @@ The network has 11.9 million parameters.
 The learning rate is 0.01, which is high for Adam. It is the likely cause of
 the validation loss above 1,000 at the first epoch in Figure 2: early on, the
 batch-normalisation statistics are still near their starting values, so
-evaluation-mode predictions swing until they settle. The only setting I added
+evaluation-mode predictions swing until they settle. The only added setting
 is a random seed, because the 2022 run was unseeded.
 
 ### The PyTorch version
@@ -211,18 +208,18 @@ with the biased one.
 - The cross-validation score is probably optimistic. The images were
   taken in sequence, so images taken moments apart are near duplicates, and shuffled
   folds can put near-twins on both sides of a split. The separate test set
-  does not have this problem, which is why I lead with 0.98.
+  does not have this problem, so 0.98 is the headline figure.
 - All images come from one data set and one capture setup. Other devices,
   lighting or page types are untested.
 - The folds vary: one scored 90.0%, against 96% to 100% for the others.
-- The model judges each image by itself and ignores the images around it. My
-  attempt to use sequences did worse (54%).
+- The model judges each image by itself and ignores the images around it. The
+  sequence-based attempt did worse (54%).
 
 ## History
 
-I first built this in 2022 in notebooks, as a 2022 applied-ML residency
-project, on the original image set. This repo packages that method as a
-tested library and adds the PyTorch version, the CLI, the run records and CI.
+The 2022 work was a set of notebooks trained on the original image set. This
+repo packages that method as a tested library and adds the PyTorch version,
+the CLI, the run records and CI.
 
 ## Acknowledgements
 
