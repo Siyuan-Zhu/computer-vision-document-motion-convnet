@@ -12,9 +12,10 @@ the app decides whether the page in view is moving or still, and it captures
 the page once it is still. Capturing too early gives a blurred scan, and
 waiting too long slows down digitizing an entire book.
 
-That decision is a two-class image classification problem. This was an
-applied-ML residency project I completed in 2022: a computer-vision proof of
-concept trained on 2,392 labelled images and tested on a separate set of 597.
+This applied-ML residency project, which I completed in 2022, treats the
+moving-or-still call as binary image classification. It is a computer-vision
+proof of concept trained on 2,392 labelled images and tested on a separate set
+of 597.
 
 ## Approach
 
