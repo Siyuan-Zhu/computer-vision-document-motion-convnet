@@ -18,8 +18,8 @@
 
 ## Intended use
 
-- **Intended:** the capture trigger in a bulk document-scanning app. The app
-  waits until the page is still, then takes the full-resolution shot.
+- **Intended:** the capture trigger in a book-digitization app. The app
+  waits until the page is still, then captures it at full resolution.
 - **Not intended:** any decision about people, or document content of any
   kind. It does not read text and has not been tested beyond the capture setup
   it was trained on.

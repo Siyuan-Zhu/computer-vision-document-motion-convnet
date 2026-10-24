@@ -6,13 +6,15 @@ given a low-resolution image of a document, predict whether the page is
 
 ## The problem
 
-An app that digitizes documents in bulk captures each page automatically, so
-the user never has to press a shutter button. To do that, it watches a
-low-resolution preview and has to decide, image by image, whether the page has
-come to rest. If it captures too early, the scan is blurred. If it waits too
-long, scanning a book becomes slow. Automatic capture helps most for people who
-cannot easily check every shot, including blind and low-vision users, and for
-researchers and anyone else scanning in bulk.
+Digitizing a book usually means photographing it one page at a time. A
+book-digitization app can take that work off the user: while they go through
+the book, it watches a low-resolution preview, captures each page at full
+resolution and turns the scans into digital text. To capture at the right
+moment, the app has to decide, image by image, whether the page is still
+moving or has come to rest. If it captures too early, the scan is blurred. If
+it waits too long, digitizing a whole book becomes slow. Getting this right
+helps most for people who cannot easily check every shot, including blind and
+low-vision readers, and for researchers digitizing books in bulk.
 
 That decision is a two-class image classification problem. I worked on it in
 2022 as an applied-ML residency project, with a labelled set of 2,392 training
