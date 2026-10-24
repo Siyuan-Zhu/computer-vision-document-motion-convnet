@@ -10,7 +10,7 @@ torch = pytest.importorskip("torch")
 from doc_motion.config import TrainConfig  # noqa: E402
 from doc_motion.torch_model import DocMotionNet, from_keras  # noqa: E402
 
-PARAMETER_COUNT = 11_889_921  # same hand count as the Keras model
+HAND_COUNTED_PARAMETERS = 11_889_921  # see test_keras_model.py
 
 
 def _count(net):
@@ -24,8 +24,8 @@ def _count(net):
     return sum(p.numel() for p in net.parameters()) + running
 
 
-def test_has_the_2022_parameter_count():
-    assert _count(DocMotionNet()) == PARAMETER_COUNT
+def test_parameter_count_matches_a_hand_count_of_the_architecture():
+    assert _count(DocMotionNet()) == HAND_COUNTED_PARAMETERS
 
 
 def test_takes_nhwc_frames_and_outputs_one_probability_each():
@@ -78,5 +78,5 @@ def test_matches_the_keras_model_given_the_same_weights():
         ported = net(torch.from_numpy(X)).numpy()
     expected = np.asarray(reference.predict(X, verbose=0))
 
-    assert _count(net) == reference.count_params() == PARAMETER_COUNT
+    assert _count(net) == reference.count_params() == HAND_COUNTED_PARAMETERS
     np.testing.assert_allclose(ported, expected, atol=1e-5, rtol=0)

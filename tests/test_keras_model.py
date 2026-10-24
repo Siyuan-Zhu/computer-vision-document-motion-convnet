@@ -8,15 +8,16 @@ keras = pytest.importorskip("keras")
 from doc_motion.config import TrainConfig  # noqa: E402
 from doc_motion.keras_model import build_keras_model  # noqa: E402
 
-# Worked out by hand from the 2022 layer list, BatchNorm moving statistics
-# included: three conv blocks shrink 100x70 to 8x5x256 = 10,240 features.
-PARAMETER_COUNT = 11_889_921
+# Counted by hand from the architecture's layer list (not a number recorded
+# in 2022), BatchNorm moving statistics included: the three conv blocks
+# shrink 100x70 to 8x5x256 = 10,240 features before the dense layers.
+HAND_COUNTED_PARAMETERS = 11_889_921
 
 
-def test_has_the_2022_parameter_count():
+def test_parameter_count_matches_a_hand_count_of_the_architecture():
     model = build_keras_model(TrainConfig())
 
-    assert model.count_params() == PARAMETER_COUNT
+    assert model.count_params() == HAND_COUNTED_PARAMETERS
 
 
 def test_outputs_one_probability_per_frame():
