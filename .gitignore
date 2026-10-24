@@ -21,3 +21,6 @@ runs/
 *.jpeg
 *.png
 *.csv
+
+# Figures shown in the README
+!docs/figures/*.png
