@@ -6,7 +6,9 @@ import argparse
 import sys
 from collections.abc import Sequence
 
+from .backends import BACKENDS
 from .config import TrainConfig, load_config
+from .data import CLASS_NAMES
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -32,16 +34,18 @@ def _parser() -> argparse.ArgumentParser:
         "train", help="cross-validate, train and evaluate; save a run folder"
     )
     train.add_argument("--config", help="YAML settings (default: 2022 values)")
+    classes = ",".join(CLASS_NAMES)
     train.add_argument(
-        "--data", required=True, help="folder with {train,test}/{moving,still}/"
+        "--data", required=True, help=f"folder with {{train,test}}/{{{classes}}}/"
     )
-    train.add_argument("--backend", choices=["keras", "torch"], default="keras")
+    train.add_argument("--backend", choices=list(BACKENDS), default="keras")
     train.add_argument("--out", default="runs", help="where run folders go")
 
     predict = commands.add_parser(
         "predict", help="classify a folder of images and write a CSV"
     )
-    predict.add_argument("--model", required=True, help="a .keras or .pt file")
+    suffixes = " or ".join(b.model_suffix for b in BACKENDS.values())
+    predict.add_argument("--model", required=True, help=f"a saved {suffixes} model")
     predict.add_argument("--images", required=True, help="folder of images")
     predict.add_argument("--out", required=True, help="CSV file to write")
     predict.add_argument("--threshold", type=float, default=0.5)
