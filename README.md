@@ -16,7 +16,7 @@ it waits too long, digitizing a whole book becomes slow.
 
 That decision is a two-class image classification problem. I worked on it in
 2022 as an applied-ML residency project, building a computer-vision proof of
-concept for this decision. I trained it on 2,392 labelled images and tested it
+concept for the decision. I trained it on 2,392 labelled images and tested it
 on a separate set of 597.
 
 ## Approach
