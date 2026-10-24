@@ -8,6 +8,7 @@ bottom 40 of 140 rows, and the brightening saturates light pixels.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import cv2
 import numpy as np
@@ -22,7 +23,7 @@ CLASSES = {"moving": 1, "still": 0}
 IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png")
 
 
-def preprocess(image: NDArray[np.uint8]) -> NDArray[np.float32]:
+def preprocess(image: NDArray[Any]) -> NDArray[np.float32]:
     """Preprocess one 8-bit frame into a (100, 70, 3) float32 array in [0, 1].
 
     Parameters

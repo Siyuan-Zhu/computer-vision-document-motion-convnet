@@ -65,7 +65,8 @@ class DocMotionNet(nn.Module):
                     nn.init.kaiming_uniform_(module.weight, nonlinearity="relu")
                 else:
                     nn.init.xavier_uniform_(module.weight)
-                nn.init.zeros_(module.bias)
+                if module.bias is not None:
+                    nn.init.zeros_(module.bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = x.permute(0, 3, 1, 2)  # NHWC -> NCHW
@@ -90,7 +91,8 @@ def from_keras(keras_model: Any) -> DocMotionNet:
     denses = [m for m in keras_model.layers if isinstance(m, keras.layers.Dense)]
     net = DocMotionNet(tuple(keras_model.input_shape[1:]))
 
-    def copy(target: torch.Tensor, value: NDArray[Any]) -> None:
+    def copy(target: torch.Tensor | None, value: NDArray[Any]) -> None:
+        assert target is not None
         target.copy_(torch.from_numpy(np.ascontiguousarray(value, dtype=np.float32)))
 
     with torch.no_grad():
