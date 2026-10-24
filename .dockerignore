@@ -1,0 +1,10 @@
+.git
+.github
+.venv
+venv
+data
+runs
+tests
+**/__pycache__
+*.keras
+*.pt

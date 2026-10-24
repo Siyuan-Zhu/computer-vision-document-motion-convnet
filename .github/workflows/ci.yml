@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -e ".[dev]"
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy
+
+  test:
+    name: test (KERAS_BACKEND=${{ matrix.keras-backend }}, Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        keras-backend: [tensorflow, jax, torch]
+        python-version: ["3.12"]
+        include:
+          - keras-backend: torch
+            python-version: "3.11"
+    env:
+      KERAS_BACKEND: ${{ matrix.keras-backend }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade pip
+      # The torch job also runs the native PyTorch port and the parity test;
+      # in the other jobs those tests skip because torch is not installed.
+      - name: Install the PyTorch CPU wheel
+        if: matrix.keras-backend == 'torch'
+        run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -e ".[dev,${{ matrix.keras-backend }}]"
+      - name: Check Keras runs on the intended backend
+        run: python -c "import keras; assert keras.backend.backend() == '${{ matrix.keras-backend }}'"
+      - run: python -m pytest
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install build
+      - run: python -m build
+      - name: Install the wheel in a clean environment and smoke test it
+        run: |
+          python -m venv /tmp/smoke
+          /tmp/smoke/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
+          /tmp/smoke/bin/pip install dist/*.whl
+          cd /tmp
+          /tmp/smoke/bin/doc-motion --help
+          KERAS_BACKEND=torch /tmp/smoke/bin/python -c "from doc_motion.backends import get_backend; from doc_motion.config import TrainConfig; get_backend('keras').build(TrainConfig()).summary()"
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t doc-motion .
+      - name: Make an untrained model and one synthetic frame inside the image
+        run: |
+          mkdir -p "$RUNNER_TEMP/work"
+          docker run --rm --user root --entrypoint python \
+            -v "$RUNNER_TEMP/work:/work" doc-motion -c "
+          import os, cv2, numpy as np
+          from doc_motion.backends import get_backend
+          from doc_motion.config import TrainConfig
+          backend = get_backend('torch')
+          backend.save(backend.build(TrainConfig()), '/work/model.pt')
+          os.makedirs('/work/frames')
+          cv2.imwrite('/work/frames/0.jpg', np.full((140, 70, 3), 128, np.uint8))
+          os.chmod('/work', 0o777)
+          "
+      - name: Predict through the image's entry point
+        run: |
+          docker run --rm -v "$RUNNER_TEMP/work:/work" doc-motion \
+            --model /work/model.pt --images /work/frames --out /work/predictions.csv
+          cat "$RUNNER_TEMP/work/predictions.csv"
+          test "$(wc -l < "$RUNNER_TEMP/work/predictions.csv")" -eq 2
