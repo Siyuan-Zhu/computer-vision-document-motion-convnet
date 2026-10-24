@@ -18,7 +18,7 @@
     <line x1="610" y1="95" x2="643" y2="95"/>
   </g>
   <g fill="#111827" font-size="15" font-weight="bold" text-anchor="middle">
-    <text x="95" y="78">Document image</text>
+    <text x="95" y="78">Book page image</text>
     <text x="305" y="78">Preprocess</text>
     <text x="525" y="78">ConvNet</text>
     <text x="722" y="78">Label</text>
@@ -31,9 +31,9 @@
     <text x="305" y="134">scale to 0 to 1</text>
     <text x="525" y="102">4 conv layers,</text>
     <text x="525" y="118">2 dense layers,</text>
-    <text x="525" y="134">P(moving)</text>
-    <text x="722" y="102">P &gt; 0.5: moving</text>
-    <text x="722" y="118">otherwise: still</text>
+    <text x="525" y="134">P(flip)</text>
+    <text x="722" y="102">P &gt; 0.5: flip</text>
+    <text x="722" y="118">otherwise: notflip</text>
   </g>
   <text x="410" y="174" fill="#6b7280" font-size="12" text-anchor="middle">Binary image classification: one probability per image, one threshold.</text>
 </svg>

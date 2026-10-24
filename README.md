@@ -1,29 +1,46 @@
 # computer-vision-document-motion-convnet
 
 Binary image classification with a convolutional neural network (ConvNet):
-given a low-resolution image of a document, predict whether the page is
-`moving` or `still`.
+given a low-resolution image of a book page, predict whether a page is being
+flipped (`flip`) or not (`notflip`).
 
-## The problem
+## Problem
 
 A book-digitization app scans a book from a low-resolution live preview and
 saves each page at full resolution as a digital scan. For each preview image,
-the app decides whether the page in view is moving or still, and it captures
-the page once it is still. Capturing too early gives a blurred scan, and
-waiting too long slows down digitizing an entire book.
+the app decides whether a page is being flipped, and it captures the page once
+the flip is over. Capturing during a flip gives a blurred scan, and waiting
+too long slows down digitizing an entire book.
 
-Deciding whether the page is moving or still is a binary image
-classification problem. This applied-ML residency project, which I completed
-in 2022, is a computer-vision proof of concept for it, trained on 2,392
-labelled images and tested on a separate set of 597.
+Deciding whether a page is being flipped is a binary image classification
+problem. This applied-ML residency project, which I completed in 2022, is a
+computer-vision proof of concept for it.
 
-## Approach
+## Data
 
-![Pipeline: document image, preprocessing, ConvNet, moving or still](docs/figures/pipeline.svg)
+| Split | `flip` | `notflip` | Total |
+|---|---|---|---|
+| Training | not recorded | not recorded | 2,392 |
+| Test (held out) | 290 | 307 | 597 |
+
+- The labelled images came with the residency project brief: colour photos of
+  book pages, sorted into `flip` and `notflip` folders.
+- `flip` (label 1) means a page is being flipped in the image. `notflip`
+  (label 0) means no page is moving.
+- Training and test images came as separate folders. Cross-validation uses the
+  training folder only, and the test folder is used once, for the final score.
+- The test set is close to balanced: 49% `flip`.
+- The images belong to the programme and are not included here, and neither
+  are trained weights. [Usage](#usage) shows the folder layout the code
+  expects.
+
+## Method
+
+![Pipeline: book page image, preprocessing, ConvNet, flip or notflip](docs/figures/pipeline.svg)
 
 **Figure 1.** *From input image to label.* Each image is resized, cropped,
-contrast-adjusted and inverted. A ConvNet then outputs the probability that
-the page is moving, and probabilities above 0.5 count as `moving`.
+contrast-adjusted and inverted. A ConvNet then outputs the probability of a
+flip, and probabilities above 0.5 count as `flip`.
 
 - OpenCV preprocessing turns each image into a 100 × 70 × 3 array and makes
   page edges and text stand out.
@@ -43,16 +60,16 @@ model card.
 | | Accuracy | Precision | Recall | F1 |
 |---|---|---|---|---|
 | Held-out test set, all 597 images | **0.98** | | | |
-| `moving` (290 images) | | 0.99 | 0.98 | 0.98 |
-| `still` (307 images) | | 0.98 | 0.99 | 0.98 |
+| `flip` (290 images) | | 0.99 | 0.98 | 0.98 |
+| `notflip` (307 images) | | 0.98 | 0.99 | 0.98 |
 | 5-fold cross-validation on the 2,392 training images | **96.2%** (std 3.3) | | | |
 
 - The five fold accuracies were 96.9%, 98.1%, 99.8%, 96.4% and 90.0%.
 - The test set was a separate folder that the model never saw while training.
   It is the more reliable figure; see [Limitations](#limitations).
 - A second approach on video sequences, using features from a pretrained
-  VGG16 network, reached 54% accuracy and recalled only 11% of still images.
-  It was dropped.
+  VGG16 network, reached 54% accuracy and recalled only 11% of `notflip`
+  images. It was dropped.
 
 ![2022 learning curves: loss and accuracy per epoch for the five folds](docs/figures/learning-curves-2022.png)
 
@@ -95,8 +112,8 @@ laid out like this:
 
 ```text
 data/
-  train/moving/*.jpg   train/still/*.jpg
-  test/moving/*.jpg    test/still/*.jpg
+  train/flip/*.jpg   train/notflip/*.jpg
+  test/flip/*.jpg    test/notflip/*.jpg
 ```
 
 ```bash
@@ -105,7 +122,7 @@ KERAS_BACKEND=torch doc-motion train --data data/ --out runs/              # Ker
 doc-motion train --data data/ --backend torch --out runs/                  # native PyTorch model
 doc-motion train --data data/ --config configs/default.yaml --out runs/   # custom settings
 
-# Label a folder of images and write a CSV (path, p_moving, label)
+# Label a folder of images and write a CSV (path, p_flip, label)
 doc-motion predict --model runs/<run>/model.keras --images images/ --out predictions.csv
 ```
 
@@ -206,10 +223,9 @@ with the biased one.
 
 ## Limitations
 
-- The cross-validation score is probably optimistic. The images were
-  taken in sequence, so images taken moments apart are near duplicates, and shuffled
-  folds can put near-twins on both sides of a split. The separate test set
-  does not have this problem, so 0.98 is the headline figure.
+- The cross-validation score may be optimistic. Images taken moments apart
+  can be near duplicates, and shuffled folds can put near-twins on both sides
+  of a split. The separate test set is the headline figure for that reason.
 - All images come from one data set and one capture setup. Other devices,
   lighting or page types are untested.
 - The folds vary: one scored 90.0%, against 96% to 100% for the others.
