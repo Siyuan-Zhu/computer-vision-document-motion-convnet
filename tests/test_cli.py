@@ -3,6 +3,7 @@
 import csv
 import json
 
+import numpy as np
 import pytest
 
 from doc_motion.cli import main
@@ -14,8 +15,12 @@ def test_predict_writes_one_csv_row_per_image(
     name, tmp_path, backend_named, write_jpgs
 ):
     backend = backend_named(name)
+    model = backend.build(TrainConfig())
+    # One training step, so the saved optimizer state is complete.
+    frames = np.zeros((2, 100, 70, 3), np.float32)
+    backend.fit(model, frames, np.array([0, 1]), TrainConfig(epochs=1))
     model_path = tmp_path / f"model{backend.model_suffix}"
-    backend.save(backend.build(TrainConfig()), model_path)
+    backend.save(model, model_path)
     write_jpgs(tmp_path / "frames", 3, 60, noise=20)
     (tmp_path / "frames" / "notes.txt").write_text("not an image")
     out = tmp_path / "predictions.csv"

@@ -60,8 +60,10 @@ class KerasBackend:
     def fit(
         self, model: Any, X: NDArray[np.float32], y: NDArray[Any], cfg: TrainConfig
     ) -> list[float]:
+        # float32 targets: JAX would otherwise truncate int64 labels.
+        targets = np.asarray(y, dtype=np.float32)
         history = model.fit(
-            X, y, epochs=cfg.epochs, batch_size=cfg.batch_size, verbose=0
+            X, targets, epochs=cfg.epochs, batch_size=cfg.batch_size, verbose=0
         )
         return [float(v) for v in history.history["loss"]]
 

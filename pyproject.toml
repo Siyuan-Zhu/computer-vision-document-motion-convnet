@@ -63,6 +63,10 @@ include = ["src", "tests", "configs", "README.md", "LICENSE"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+filterwarnings = [
+    # Keras internals call np.array(copy=False) on backend tensors under NumPy 2.
+    "ignore:__array__ implementation doesn't accept a copy keyword:DeprecationWarning:keras.*",
+]
 
 [tool.mypy]
 python_version = "3.11"

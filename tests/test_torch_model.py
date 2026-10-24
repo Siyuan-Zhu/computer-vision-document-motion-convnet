@@ -68,7 +68,7 @@ def test_matches_the_keras_model_given_the_same_weights():
 
     rng = np.random.default_rng(0)
     X = rng.random((16, 100, 70, 3), dtype=np.float32)
-    y = rng.integers(0, 2, size=16)
+    y = rng.integers(0, 2, size=16).astype(np.float32)
     reference = build_keras_model(TrainConfig(seed=0, learning_rate=1e-4))
     # One short fit so the BatchNorm moving statistics are no longer 0 and 1.
     reference.fit(X, y, epochs=1, batch_size=8, verbose=0)
