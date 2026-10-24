@@ -102,3 +102,24 @@ def test_train_writes_a_run_folder_from_an_image_folder(
     metrics = json.loads((run_dir / "metrics.json").read_text())
     assert (metrics["n_train"], metrics["n_test"]) == (8, 4)
     assert (run_dir / "model.pt").is_file()
+
+
+def test_predict_rejects_an_unknown_model_file_type(tmp_path, capsys, write_jpgs):
+    model_path = tmp_path / "model.h5"
+    model_path.write_bytes(b"")
+    write_jpgs(tmp_path / "frames", 1, 60)
+
+    code = main(
+        [
+            "predict",
+            "--model",
+            str(model_path),
+            "--images",
+            str(tmp_path / "frames"),
+            "--out",
+            str(tmp_path / "out.csv"),
+        ]
+    )
+
+    assert code == 1
+    assert ".h5" in capsys.readouterr().err

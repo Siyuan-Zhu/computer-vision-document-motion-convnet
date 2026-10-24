@@ -95,3 +95,11 @@ def test_load_split_fails_clearly_when_the_folder_is_empty(tmp_path):
 
     with pytest.raises(FileNotFoundError, match="test"):
         load_split(tmp_path, "test")
+
+
+def test_load_split_names_a_file_it_cannot_read(tmp_path, write_jpgs):
+    write_jpgs(tmp_path / "train" / "still", 1, 100)
+    (tmp_path / "train" / "still" / "broken.jpg").write_bytes(b"not a jpeg")
+
+    with pytest.raises(ValueError, match=r"broken\.jpg"):
+        load_split(tmp_path, "train")
