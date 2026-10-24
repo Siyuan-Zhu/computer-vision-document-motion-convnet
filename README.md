@@ -109,9 +109,14 @@ from doc_motion.data import load_split
 from doc_motion.predict import predict_folder
 from doc_motion.training import run
 
-cfg = TrainConfig()                                   # the 2022 settings
-record = run(cfg, load_split("data", "train"), load_split("data", "test"),
-             get_backend("keras"), "runs")
+cfg = TrainConfig()  # the 2022 settings
+record = run(
+    cfg,
+    load_split("data", "train"),
+    load_split("data", "test"),
+    get_backend("keras"),
+    "runs",
+)
 print(record.cv_accuracy_mean, record.test_report["accuracy"])
 rows = predict_folder(record.model_path, "frames")
 ```
